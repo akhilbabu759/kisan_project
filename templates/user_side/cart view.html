@@ -13,24 +13,32 @@
   <tr>
     <td>#</td>
    
-    <td>Product Name</td>
+    <td>Item Name</td>
      <td>quantity</td>
     <td>price</td>
-     <td>total</td>
+     <td>total price</td>
       <td></td>
   </tr>
-    {% for i in a %}
+    {% for i in data %}
   <tr>
     <td>{{ loop.index }}</td>
-    <td>{{ i['Product_name'] }}</td>
-    <td>{{ i['quantity'] }}</td>
+    <td>{{ i['name'] }}</td>
+    <td>{{ i['u_quantity'] }}</td>
      <td>{{ i['admin_price'] }}</td>
 
-    <td>{{ i['totalsum'] }}</td>
+        <td>{{ i.admin_price|int * i.u_quantity|int }}</td>
 
-  <td><a href="/book_mode/{{ i['master_id'] }}">Buy</a> </td>
+{#  <td><a href="/book_mode/{{ i['master_id'] }}">Buy</a> </td>#}
   </tr>
  {% endfor %}
+ <tr align="center">
+      <td colspan="7"><h2>Total: <font color="red">{{ am}}</font> </h2></td>
+    </tr>
+<tr>
+  <td colspan="7">
+      <center><a href="/book_mode/{{ am }}/{{ m }}">BOOK</a></center>
+  </td>
+  </tr>
   
 </table>
 {#<section>#}

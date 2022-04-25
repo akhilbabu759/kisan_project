@@ -1,5 +1,6 @@
-{% extends "admin_side/index.html" %}
+{% extends "user_side/user_index.html" %}
 {% block body %}
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -12,12 +13,10 @@
   <table width="200" border="1">
     <tr>
       <th scope="row">#</th>
-      <td>Seller Name</td>
-      <td>Product Name</td>
-      <td>Details</td>
-      <td>Stock</td>
-      <td>Price</td>
-      <td>&nbsp;</td>
+      <td>product name</td>
+      <td>quantity</td>
+      <td>amount</td>
+      <td>payment mode</td>
 
     </tr>
        {% for i in res %}
@@ -25,16 +24,15 @@
       <td>&nbsp;{{ loop.index }}</td>
       <td>&nbsp;{{ i['name'] }}</td>
 
-      <td>&nbsp;&nbsp;{{ i['item_name'] }}</td>
-      <td>&nbsp;{{ i['details'] }}</td>
-      <td>&nbsp;&nbsp;{{ i['Quantity'] }}</td>
-      <td>&nbsp;&nbsp;{{ i['seller_price'] }}</td>
-     <td>&nbsp;&nbsp;<a href="/accept_seller/{{ i['Product_id'] }}">Accept</a><br>
-         <a href="/reject_seller/{{ i['Product_id'] }}" onclick="return confirm('Are you sure?') ">Reject</a></td>
+      <td>&nbsp;&nbsp;{{ i['u_quantity'] }}</td>
+      <td>&nbsp;&nbsp;{{ i['amount'] }}</td>
+      <td>{{ i['status'] }}</td>
     </tr>
       {% endfor %}
   </table>
 </form>
 </body>
 </html>
+
+
 {% endblock %}

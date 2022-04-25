@@ -1,6 +1,6 @@
 /*
 SQLyog Community Edition- MySQL GUI v8.03 
-MySQL - 5.5.5-10.4.17-MariaDB : Database - kisan
+MySQL - 5.6.12-log : Database - kisan_project
 *********************************************************************
 */
 
@@ -11,9 +11,9 @@ MySQL - 5.5.5-10.4.17-MariaDB : Database - kisan
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
-CREATE DATABASE /*!32312 IF NOT EXISTS*/`kisan` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/`kisan_project` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
 
-USE `kisan`;
+USE `kisan_project`;
 
 /*Table structure for table `allocate` */
 
@@ -24,28 +24,48 @@ CREATE TABLE `allocate` (
   `request_id` int(11) DEFAULT NULL,
   `employee_id` int(11) DEFAULT NULL,
   `type` varchar(100) DEFAULT NULL,
+  `status` varchar(100) DEFAULT NULL,
+  `date` date DEFAULT NULL,
   PRIMARY KEY (`S.No`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `allocate` */
 
-insert  into `allocate`(`S.No`,`request_id`,`employee_id`,`type`) values (3,14,15,'soil'),(4,1,12,'soil'),(5,1,16,'soil'),(6,1,12,'soil'),(7,1,12,'collect');
+insert  into `allocate`(`S.No`,`request_id`,`employee_id`,`type`,`status`,`date`) values (1,4,1,'soil','free','2022-04-07'),(2,2,1,'soil','free','2022-04-20'),(3,3,4,'product','pending','2022-04-20'),(4,6,1,'soil','free','2022-04-20'),(7,8,4,'product','free','2022-04-22'),(8,9,5,'product','free','2022-04-22');
+
+/*Table structure for table `bank` */
+
+DROP TABLE IF EXISTS `bank`;
+
+CREATE TABLE `bank` (
+  `bank_id` int(11) NOT NULL AUTO_INCREMENT,
+  `person_id` int(11) DEFAULT NULL,
+  `account_no` int(11) DEFAULT NULL,
+  `ifsc` varchar(11) DEFAULT NULL,
+  `amount` int(11) DEFAULT NULL,
+  `type` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`bank_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4;
+
+/*Data for the table `bank` */
+
+insert  into `bank`(`bank_id`,`person_id`,`account_no`,`ifsc`,`amount`,`type`) values (1,0,45,'',7200,'admin'),(2,2,5678,'509sbi',1500,'employee'),(3,3,8765,'999',100,'employee'),(4,2,78965,'768sbi',825,'user'),(5,3,123,'123',10808,'seller'),(6,4,45678,'45irty',3500,'user'),(7,4,2147483647,'fed243445',3500,'employee'),(9,5,633260810,'0810sbiirit',2200,'user'),(10,5,345678,'678sbi',2529,'user'),(11,6,2147483647,'922sbi',4600,'seller'),(12,5,670230104,'fed104',5000,'employee'),(13,7,12345678,'c09',10000,'employee');
 
 /*Table structure for table `booking` */
 
 DROP TABLE IF EXISTS `booking`;
 
 CREATE TABLE `booking` (
-  `boooking_id` int(11) NOT NULL AUTO_INCREMENT,
+  `booking_id` int(11) NOT NULL AUTO_INCREMENT,
   `master_id` int(11) DEFAULT NULL,
   `product_id` int(11) DEFAULT NULL,
-  `quantity` int(11) DEFAULT NULL,
-  PRIMARY KEY (`boooking_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
+  `u_quantity` int(11) DEFAULT NULL,
+  PRIMARY KEY (`booking_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `booking` */
 
-insert  into `booking`(`boooking_id`,`master_id`,`product_id`,`quantity`) values (1,1,1,2),(3,1,2,1);
+insert  into `booking`(`booking_id`,`master_id`,`product_id`,`u_quantity`) values (1,1,1,10),(2,1,2,10);
 
 /*Table structure for table `booking_master` */
 
@@ -62,7 +82,7 @@ CREATE TABLE `booking_master` (
 
 /*Data for the table `booking_master` */
 
-insert  into `booking_master`(`master_id`,`user_id`,`amount`,`date`,`status`) values (1,3,'','2022-09-09','pending');
+insert  into `booking_master`(`master_id`,`user_id`,`amount`,`date`,`status`) values (1,5,'0','2022-04-24','paid');
 
 /*Table structure for table `complaint` */
 
@@ -77,11 +97,11 @@ CREATE TABLE `complaint` (
   `reply_date` varchar(100) DEFAULT NULL,
   `type` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`compaint_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `complaint` */
 
-insert  into `complaint`(`compaint_id`,`complaint`,`complaint_date`,`user_id`,`reply`,`reply_date`,`type`) values (1,'wshjhvikji','2000-11-08',2,'uyguyghuyhg','2022-01-07','jdsfhi'),(2,'jfsugfyhdsf','2010-11-09',3,'fgdh','2022-02-09','NJSXA'),(3,'6ryrhfjyyuruy','2022-02-17',21,'ok','2022-02-17','seller'),(4,'6ryrhfjyyuruy','2022-02-17',21,'yes','2022-02-17','seller'),(5,'','2022-02-17',21,'pending','pending','seller');
+insert  into `complaint`(`compaint_id`,`complaint`,`complaint_date`,`user_id`,`reply`,`reply_date`,`type`) values (1,'im not satisfied','2022-04-07',2,'we will  try our best','2022-04-07','user'),(2,'its not good','2022-04-07',3,'sorry for the inconvenience','2022-04-07','seller'),(3,'some issue occured!!!','2022-04-21',5,'we will check !!\r\n thanku for connect us','2022-04-21','user');
 
 /*Table structure for table `employee` */
 
@@ -96,11 +116,11 @@ CREATE TABLE `employee` (
   `phone_no` int(100) DEFAULT NULL,
   `email` varchar(230) DEFAULT NULL,
   PRIMARY KEY (`employee_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `employee` */
 
-insert  into `employee`(`employee_id`,`name`,`street`,`locality`,`district`,`phone_no`,`email`) values (12,'Das','Kannur','Kannur','Kannur',2147483647,'das@gamil.com'),(16,'ganga','kavumpadi','kakkayangad','Kannur',2147483647,'ganga123@gmail.com'),(17,'vishnu','vattakkayam','kooranmukk','Kannur',345678923,'vishnu@gmail.com');
+insert  into `employee`(`employee_id`,`name`,`street`,`locality`,`district`,`phone_no`,`email`) values (4,'alan','iritty','peratta','Kannur',2147483647,'alan5555@gmail.com'),(5,'tony','lulu ','iritty','Thrissur',2147483647,'tony@gmail.com'),(7,'seena','kannur','skannur','Kannur',2147483647,'kal@gmail.com');
 
 /*Table structure for table `feedback` */
 
@@ -113,27 +133,25 @@ CREATE TABLE `feedback` (
   `date` varchar(100) DEFAULT NULL,
   `time` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`feedback_id`)
-<<<<<<< HEAD:sqll.sql
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `feedback` */
 
-insert  into `feedback`(`feedback_id`,`feedback`,`user_id`,`date`,`time`) values (1,'blknjghlkm',11,'ahil',NULL),(2,'',NULL,NULL,NULL),(3,'Submit',1,'2022-02-02','12:13:26'),(4,'nzkslnglksn',1,'2022-02-02','12:16:10'),(5,'dfh',1,'2022-02-04','10:55:22'),(6,'uhuohouvv',1,'2022-02-08','01:50:05'),(7,'ilkill',2,'2022-02-08','21:07:41');
-=======
-<<<<<<< HEAD:sqll.sql
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4;
+insert  into `feedback`(`feedback_id`,`feedback`,`user_id`,`date`,`time`) values (1,'it is very useful',2,'2022-04-07','14:47:36'),(2,'wonderful service.',2,'2022-04-20','10:48:44'),(3,'not change product quantity after buy product',5,'2022-04-21','22:29:34');
 
-/*Data for the table `feedback` */
+/*Table structure for table `item` */
 
-insert  into `feedback`(`feedback_id`,`feedback`,`user_id`,`date`,`time`) values (1,'blknjghlkm',11,'ahil',NULL),(2,'',NULL,NULL,NULL),(3,'Submit',1,'2022-02-02','12:13:26'),(4,'nzkslnglksn',1,'2022-02-02','12:16:10'),(5,'dfh',1,'2022-02-04','10:55:22'),(6,'uhuohouvv',1,'2022-02-08','01:50:05'),(7,'ilkill',2,'2022-02-08','21:07:41');
-=======
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
+DROP TABLE IF EXISTS `item`;
 
-/*Data for the table `feedback` */
+CREATE TABLE `item` (
+  `item_id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`item_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4;
 
-insert  into `feedback`(`feedback_id`,`feedback`,`user_id`,`date`,`time`) values (1,'blknjghlkm',11,'ahil',NULL),(2,'',NULL,NULL,NULL),(3,'Submit',1,'2022-02-02','12:13:26'),(4,'nzkslnglksn',1,'2022-02-02','12:16:10'),(5,'dfh',1,'2022-02-04','10:55:22');
->>>>>>> 2de4bee381761d7741258714956ad38ec63bc040:sql.sql
->>>>>>> c2fd2cff8221e58f03ef0535f38cd70eff5ab9c5:sql.sql
+/*Data for the table `item` */
+
+insert  into `item`(`item_id`,`name`) values (3,'brinjal'),(4,'carrot'),(5,'tomato'),(6,'onion');
 
 /*Table structure for table `login` */
 
@@ -145,11 +163,11 @@ CREATE TABLE `login` (
   `password` varchar(100) DEFAULT NULL,
   `user_type` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`login_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `login` */
 
-insert  into `login`(`login_id`,`user_name`,`password`,`user_type`) values (1,'akhil','123','user'),(2,'arun','123','user'),(9,'center','1234','center'),(10,'admin','admin','admin'),(11,'center2','1234','center'),(13,'delux','12345','center'),(14,'fsdsgs','123','seller'),(15,'fsdsgs','123','seller'),(16,'fsdsgs','123','seller'),(17,'fsdsgs','456','seller'),(18,'asd','345','seller'),(19,'adfg','908','seller'),(20,'','','seller'),(21,'anu','345','seller'),(22,'ammu','1234','seller');
+insert  into `login`(`login_id`,`user_name`,`password`,`user_type`) values (1,'admin','admin','admin'),(2,'anu123@gmail.com','123','user'),(3,'akhil@gmail.com','345','seller'),(4,'jo_mol@gmail.com','453','user'),(5,'albin34@gmail.com','633','user'),(6,'ammu@gmail.com','908','seller');
 
 /*Table structure for table `notification` */
 
@@ -161,54 +179,48 @@ CREATE TABLE `notification` (
   `date` varchar(100) DEFAULT NULL,
   `time` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`not_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `notification` */
 
-insert  into `notification`(`not_id`,`notification`,`date`,`time`) values (1,'GFJYHIU','2022-02-09','15:41:01'),(2,'asdfgj','2022-02-17','12:45:53'),(3,'asfjhkl','2022-02-17','14:18:08');
+insert  into `notification`(`not_id`,`notification`,`date`,`time`) values (1,'Welcome To Kisan Trade','2022-04-07','14:43:13'),(2,'haloo','2022-04-21','22:01:52');
 
-/*Table structure for table `payment` */
+/*Table structure for table `pro_quantity` */
 
-DROP TABLE IF EXISTS `payment`;
+DROP TABLE IF EXISTS `pro_quantity`;
 
-CREATE TABLE `payment` (
-  `payment_id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) DEFAULT NULL,
-  `account_no` int(11) DEFAULT NULL,
-  `amount` int(11) DEFAULT NULL,
-  `date` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`payment_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
+CREATE TABLE `pro_quantity` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `item_id` int(30) DEFAULT NULL,
+  `quantity` int(11) DEFAULT NULL,
+  `admin_price` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 
-/*Data for the table `payment` */
+/*Data for the table `pro_quantity` */
 
-<<<<<<< HEAD:sqll.sql
-insert  into `payment`(`payment_id`,`user_id`,`account_no`,`amount`,`date`) values (1,1,132423536,2000,'2022-01-06'),(2,2,124325676,2000,'2022-01-05'),(3,22,456789,0,'2020-11-26');
-=======
-<<<<<<< HEAD:sqll.sql
-insert  into `payment`(`payment_id`,`user_id`,`account_no`,`amount`,`date`) values (1,1,132423536,2000,'2022-01-06'),(2,2,124325676,2000,'2022-01-05'),(3,22,456789,0,'2020-11-26');
-=======
-insert  into `payment`(`payment_id`,`user_id`,`account_no`,`amount`,`date`) values (1,1,132423536,500,'2022-01-06'),(2,2,124325676,2000,'2022-01-05'),(3,NULL,NULL,NULL,NULL);
->>>>>>> 2de4bee381761d7741258714956ad38ec63bc040:sql.sql
->>>>>>> c2fd2cff8221e58f03ef0535f38cd70eff5ab9c5:sql.sql
+insert  into `pro_quantity`(`id`,`item_id`,`quantity`,`admin_price`) values (1,4,40,100),(2,3,20,120);
 
 /*Table structure for table `product` */
 
 DROP TABLE IF EXISTS `product`;
 
 CREATE TABLE `product` (
-  `Product_id` int(11) NOT NULL,
+  `Product_id` int(11) NOT NULL AUTO_INCREMENT,
   `seller_id` int(11) DEFAULT NULL,
-  `Product_name` varchar(100) DEFAULT NULL,
-  `Quantity` int(11) DEFAULT NULL,
+  `item_id` int(100) DEFAULT NULL,
+  `Quantity` varchar(11) DEFAULT NULL,
   `details` varchar(100) DEFAULT NULL,
-  `price` int(11) DEFAULT NULL,
+  `seller_price` float DEFAULT NULL,
+  `admin_price` float DEFAULT NULL,
+  `date` date DEFAULT NULL,
+  `status` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`Product_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `product` */
 
-insert  into `product`(`Product_id`,`seller_id`,`Product_name`,`Quantity`,`details`,`price`) values (1,NULL,'tomato',NULL,NULL,25),(2,NULL,'Onion',NULL,NULL,40);
+insert  into `product`(`Product_id`,`seller_id`,`item_id`,`Quantity`,`details`,`seller_price`,`admin_price`,`date`,`status`) values (3,3,0,'45','its good for health',21,35,'2022-04-07','pending'),(5,6,0,'30','good and healthy',20,22,'2022-04-20','accepted'),(6,6,0,'10','good',25,27,'2022-04-20','accepted'),(7,5,0,'50','green apple',10,0,'2022-04-21','pending'),(8,3,4,'20','asdfsdfs',20,0,'2022-04-22','accepted'),(9,3,4,'20','qweqwe',15,NULL,'2022-04-23','accepted');
 
 /*Table structure for table `query` */
 
@@ -222,11 +234,9 @@ CREATE TABLE `query` (
   `reply` varchar(250) DEFAULT NULL,
   `reply_date` varchar(250) DEFAULT NULL,
   PRIMARY KEY (`q_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `query` */
-
-insert  into `query`(`q_id`,`query`,`user_id`,`date`,`reply`,`reply_date`) values (1,'gfhg',1,'11/55/7868',NULL,NULL),(2,'kkjhj',2,NULL,NULL,NULL);
 
 /*Table structure for table `rating` */
 
@@ -237,11 +247,11 @@ CREATE TABLE `rating` (
   `rating` varchar(100) DEFAULT NULL,
   `user_id` int(10) DEFAULT NULL,
   PRIMARY KEY (`rating_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `rating` */
 
-insert  into `rating`(`rating_id`,`rating`,`user_id`) values (12,'tdyuergfjb',2),(13,'hugyhjhbsahg',0);
+insert  into `rating`(`rating_id`,`rating`,`user_id`) values (1,'wow!!!!',2);
 
 /*Table structure for table `seller` */
 
@@ -256,11 +266,11 @@ CREATE TABLE `seller` (
   `phoneno` varchar(100) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`seller_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `seller` */
 
-insert  into `seller`(`seller_id`,`name`,`street`,`locality`,`district`,`phoneno`,`email`) values (1,'fsdsgs','hfh','fhfr','Kasargod','2435436','ase@gmal.com'),(2,'fsdsgs','hfh','fhfr','Kasargod','2435436','ase@gmal.com'),(3,'fsdsgs','hfh','fhfr','Kasargod','2435436','ase@gmal.com'),(4,'fsdsgs','hfh','fhfr','Kasargod','2435436','ase@gmal.com'),(18,'asd','jjt','ghhg','Kasargod','21345','adgghhg@gmail.com'),(19,'adfg','jjgf','sry','Wayanad','12356','ae@gmail.com'),(20,'','','','Kasargod','',''),(21,'anu','mattadi','kannur','Kannur','3456789889','anu@gmail.com'),(22,'ammu','kakkayangad','kakkayangad','Kannur','2343456780','ammoos@gmail.com');
+insert  into `seller`(`seller_id`,`name`,`street`,`locality`,`district`,`phoneno`,`email`) values (3,'akhil','kolikkadavu','payam','Kannur','6789556489','akhil@gmail.com'),(6,'ammu','neeleswaram','neeleswaram','Kasargod','9089776545','ammu@gmail.com');
 
 /*Table structure for table `soil_report` */
 
@@ -273,27 +283,11 @@ CREATE TABLE `soil_report` (
   `date` varchar(100) DEFAULT NULL,
   `status` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`soilreport_id`)
-<<<<<<< HEAD:sqll.sql
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `soil_report` */
 
-insert  into `soil_report`(`soilreport_id`,`user_id`,`amount`,`date`,`status`) values (1,22,500,'2022-02-17','booked'),(2,22,500,'2022-02-17','booked'),(3,22,500,'2022-02-17','booked'),(4,22,500,'2022-02-17','booked'),(5,22,500,'2022-02-17','booked');
-=======
-<<<<<<< HEAD:sqll.sql
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
-
-/*Data for the table `soil_report` */
-
-insert  into `soil_report`(`soilreport_id`,`user_id`,`amount`,`date`,`status`) values (1,22,500,'2022-02-17','booked'),(2,22,500,'2022-02-17','booked'),(3,22,500,'2022-02-17','booked'),(4,22,500,'2022-02-17','booked'),(5,22,500,'2022-02-17','booked');
-=======
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4;
-
-/*Data for the table `soil_report` */
-
-insert  into `soil_report`(`soilreport_id`,`user_id`,`amount`,`date`,`status`) values (6,1,400,'2022-02-04','pending'),(7,1,400,'2022-02-04','pending'),(8,1,400,'2022-02-04','pending'),(9,1,400,'2022-02-04','pending'),(10,1,400,'2022-02-04','pending'),(11,1,400,'2022-02-04','pending'),(12,1,400,'2022-02-04','pending'),(13,1,400,'2022-02-04','/static/kisan/20220204155234.pdf'),(14,1,400,'2022-02-04','booked');
->>>>>>> 2de4bee381761d7741258714956ad38ec63bc040:sql.sql
->>>>>>> c2fd2cff8221e58f03ef0535f38cd70eff5ab9c5:sql.sql
+insert  into `soil_report`(`soilreport_id`,`user_id`,`amount`,`date`,`status`) values (2,2,500,'2022-04-07','booked'),(3,3,500,'2022-04-07','pending'),(4,3,500,'2022-04-07','/static/kisan/20220407152922.pdf'),(5,2,500,'2022-04-07','booked'),(6,2,500,'2022-04-20','/static/kisan/20220420143826.pdf'),(7,6,500,'2022-04-20','booked'),(8,5,500,'2022-04-21','/static/kisan/20220421223451.pdf');
 
 /*Table structure for table `user` */
 
@@ -303,18 +297,18 @@ CREATE TABLE `user` (
   `user_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_name` varchar(100) DEFAULT NULL,
   `street` varchar(1000) DEFAULT NULL,
-  `phone_number` int(11) DEFAULT NULL,
+  `phone_number` varchar(11) DEFAULT NULL,
   `gender` varchar(1000) DEFAULT NULL,
   `locality` varchar(100) DEFAULT NULL,
   `district` varchar(100) DEFAULT NULL,
   `profile_photo` varchar(100) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4;
 
 /*Data for the table `user` */
 
-insert  into `user`(`user_id`,`user_name`,`street`,`phone_number`,`gender`,`locality`,`district`,`profile_photo`,`email`) values (1,'akhil','payam',2147483647,'male','payam','kannur','abc.jpg',NULL),(2,'arun','payam',789978766,'male','payam','Kasargod','12.jpg',NULL),(3,'manu','kunnoth',2147483647,'male','payam','kannur','678.jpg',NULL);
+insert  into `user`(`user_id`,`user_name`,`street`,`phone_number`,`gender`,`locality`,`district`,`profile_photo`,`email`) values (2,'Anu','valora','4567345675','female','chavassery','Kasargod','static/images/220407-144533.jpg','anu123@gmail.com'),(4,'jomol','kacherikkadavu','1234567890','female','koottupuzha','Kannur','static/images/220407-162201.jpg','jo_mol@gmail.com'),(5,'Albin','pala','6789456734','male','iritty','Kasargod','static/images/220420-150353.jpg','albin34@gmail.com');
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

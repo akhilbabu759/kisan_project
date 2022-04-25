@@ -27,8 +27,8 @@
 
               <tr>
                   <td>{{ loop.index }}</td>
-                  <td>&nbsp;&nbsp;{{ i['Product_name'] }}</td>
-                  <td>&nbsp;&nbsp;{{ i['quantity'] }}</td>
+                  <td>&nbsp;&nbsp;{{ i['name'] }}</td>
+                  <td>&nbsp;&nbsp;{{ i['u_quantity'] }}</td>
                   <td>&nbsp;&nbsp;{{ i['user_name'] }}</td>
                   <td>{{ i['street'] }}</td>
                   <td>{{ i['locality'] }}</td>
@@ -37,7 +37,12 @@
                   <td>&nbsp;&nbsp;{{ i['date'] }}</td>
 
                    <td>{{ i['amount'] }}</td>
-              <td><a href="/allocate_product_emp_user/{{ i['Product_id'] }}">Employee Allocation</a> </td>
+                  {% if data1.status=='pending' %}
+                  <td>ALLOCATED</td>
+                  {% else %}
+
+              <td><a href="/allocate_product_emp_user/{{ i['booking_id'] }}">Employee Allocation</a> </td>
+              {% endif %}
               </tr>
 
       {% endfor %}

@@ -102,6 +102,24 @@ def delete_employee(e_id):
     db.delete("delete from employee where employee_id='"+e_id+"'")
     return redirect('/view_employee')
 
+
+@app.route("/admin_add_item", methods=['get', 'post'])
+def admin_add_item():
+    if request.method=="POST":
+        name=request.form['textarea']
+        db=Db()
+        db.insert("insert into item(name) values('"+name+"')")
+        return "<script>alert('Item added');window.location='/admin_add_item';</script>"
+    db=Db()
+    res=db.select("select * from item")
+    return render_template("admin_side/add_item.html", data=res)
+
+@app.route("/delete_item/<id>")
+def delete_item(id):
+    db=Db()
+    db.delete("delete from item where item_id='"+id+"'")
+    return redirect("/admin_add_item")
+
 @app.route('/view_soil_request',methods=['get','post'])
 def view_soil_request():
     db = Db()
@@ -132,7 +150,7 @@ def soil_report():
         ss=obj.selectOne("select * from allocate,employee where employee.employee_id=allocate.employee_id and allocate.status='pending'")
         print(ss)
 
-        return render_template("admin_side/View_seller_requests.html",res=qry,data=ss)
+        return render_template("admin_side/view_seller_request.html",res=qry,data=ss)
 
 
 @app.route('/soil_report_user')
@@ -327,22 +345,38 @@ def send_payment_seller(b,pr):
 @app.route('/view_booking_user')
 def view_booking_user():
     db=Db()
-    ss=db.select("select * from booking_master,user,product,booking where booking_master.user_id=user.user_id and booking_master.status='booked' and booking_master.master_id=booking.master_id and product.Product_id=booking.product_id")
+    ss=db.select("select * from booking_master,user,pro_quantity,booking,item where booking_master.user_id=user.user_id and booking_master.status!='add to cart' and booking_master.master_id=booking.master_id and pro_quantity.id=booking.product_id and pro_quantity.item_id=item.item_id")
+    qry=db.select("select * from booking,allocate where booking.booking_id=allocate.request_id and allocate.status='pending'")
     print(ss)
-    return render_template('admin_side/view booking_user.html',data=ss)
+    return render_template('admin_side/view booking_user.html',data=ss,data1=qry)
+
+
+# @app.route('/allocate_product_emp_user/<b>')
+# def allocate_product_emp_user(b):
+#     db=Db()
+#
+#     r = db.select("select * from product,allocate where product.Product_id=allocate.request_id and request_id='"+b+"' ")
+#     if len(r) >0:
+#         return '''<script>alert('Already assigned');window.location="/view_booking_user"</script>'''
+#     else:
+#
+#         qry=db.select("select * from employee")
+#         return render_template("admin_side/allocation emp view_product.html", qry=qry,data=b)
+#
 
 
 @app.route('/allocate_product_emp_user/<b>')
 def allocate_product_emp_user(b):
     db=Db()
 
-    r = db.select("select * from product,allocate where product.Product_id=allocate.request_id and request_id='"+b+"' ")
+    r = db.select("select * from booking,allocate where booking.booking_id=allocate.request_id and request_id='"+b+"' ")
     if len(r) >0:
         return '''<script>alert('Already assigned');window.location="/view_booking_user"</script>'''
     else:
 
         qry=db.select("select * from employee")
         return render_template("admin_side/allocation emp view_product.html", qry=qry,data=b)
+
 
 
 @app.route('/assign_emp_product/<b>/<c>',methods=['get','post'])
@@ -508,9 +542,9 @@ def user():
     res=obj.select(qry)
     return render_template("admin_side/View User.html", res=res)
 
-@app.route('/notification',methods=['GET','POST'])
+@app.route('/notification',methods=['get','post'])
 def notification():
-    if request.method == 'POST':
+    if request.method == "POST":
         db=Db()
         noet=request.form['textarea']
         db.insert("insert into notification VALUE('','" + noet +"',curdate(),curtime())")
@@ -523,31 +557,116 @@ def notification():
 @app.route('/view_seller_request')
 def view_seller_request():
     db=Db()
-    prd=db.select("select * from seller,product where seller.seller_id=product.seller_id and status='pending'")
+    prd=db.select("select product.*, seller.name, item.name as item_name from seller,product, item where product.item_id=item.item_id and seller.seller_id=product.seller_id and product.status='pending'")
     return render_template("admin_side/view_seller_request.html",res=prd)
 
 
 @app.route('/accept_seller/<s_id>')
 def accept_seller(s_id):
     db=Db()
-    db.update("update product_request set status='accepted' where request_id='"+s_id+"'")
+    db.update("update product set status='accepted' where Product_id='"+s_id+"'")
     return ''' <script> alert("Accepted");window.location = "/view_seller_request"  </script>'''
 
 @app.route('/reject_seller/<s_id>')
 def reject_seller(s_id):
     db=Db()
-    db.delete("delete from product_request where request_id='"+s_id+"'")
+    db.delete("delete from product where Product_id='"+s_id+"'")
     return ''' <script> alert("Deleted");window.location = "/view_seller_request"  </script>'''
 
 
 
+# @app.route('/view_accepted_seller')
+# def view_accepted_seller():
+#     db=Db()
+#     res=db.select("select product.*, seller.name, item.name as item_name, allocate.status as astatus, allocate.`S.No` from seller inner join product on  seller.seller_id=product.seller_id inner join  item on product.item_id=item.item_id left join allocate on product.Product_id=allocate.request_id  where product.status='accepted'")
+#     return render_template("admin_side/view_accepted_seller.html",res=res)
+
+
+# @app.route('/view_accepted_seller')
+# def view_accepted_seller():
+#     db=Db()
+#     res=db.select("select product.*, seller.name, item.name as item_name, allocate.status as astatus, allocate.`S.No` from seller inner join product on  seller.seller_id=product.seller_id inner join  item on product.item_id=item.item_id left join allocate on product.Product_id=allocate.request_id")
+#     return render_template("admin_side/view_accepted_seller.html",res=res)
+#
+# -------------------------------------
 @app.route('/view_accepted_seller')
 def view_accepted_seller():
     db=Db()
-    res=db.select("select * from seller,product where seller.seller_id=product.seller_id and status='accepted'")
+    # a=db.select("select seller.name as n,seller.*,product.*,item.* from product,seller,item where product.seller_id=seller.seller_id and product.item_id=item.item_id")
+    res=db.select("select product.*, seller.name, item.name as item_name, allocate.status as astatus, allocate.`S.No` from seller inner join product on  seller.seller_id=product.seller_id inner join  item on product.item_id=item.item_id left join allocate on product.Product_id=allocate.request_id")
+    print(res)
+
+
     return render_template("admin_side/view_accepted_seller.html",res=res)
+#
 
 
+@app.route("/allocate_emp_seller/<id>", methods=['get', 'post'])
+def allocate_emp_seller(id):
+    if request.method=="POST":
+        eid=request.form['select']
+        db=Db()
+        db.insert("insert into allocate(request_id, employee_id, type, status, date) values('"+id+"', '"+eid+"', 'product', 'pending', curdate())")
+        return redirect("/view_accepted_seller")
+    db=Db()
+    res=db.select("select * from employee")
+    return render_template("admin_side/product_allocation_to_employee.html", data=res)
+
+# @app.route("/collected_entry/<sno>")
+# def collected_entry(sno):
+#     db=Db()
+#     res=db.selectOne("select product.Quantity, product.item_id from product, allocate where allocate.request_id=product.Product_id and allocate.`S.No`='"+sno+"'")
+#     res2=db.selectOne("select * from pro_quantity where item_id='"+str(res['item_id'])+"'")
+#     print("Hlooo   ", str(res['item_id']), "   ", str(res['Quantity']))
+#     if res2 is None:
+#         db.insert("insert into pro_quantity(item_id, quantity,admin_price) values('"+str(res['item_id'])+"', '"+str(res['Quantity'])+"','pending')")
+#     else:
+#         db.update("update pro_quantity set quantity=quantity+"+str(res['Quantity'])+" where id='"+str(res2['id'])+"'")
+#     db.update("update allocate set status='free' where `S.No`='"+sno+"'")
+#     return redirect("/view_accepted_seller")
+
+# -----------------------------
+
+@app.route("/collected_entry/<pid>")
+def collected_entry(pid):
+    db=Db()
+    res=db.selectOne("select * from product WHERE Product_id='"+pid+"'")
+    # res=db.selectOne("select product.Quantity, product.item_id from product, allocate where allocate.request_id=product.Product_id and allocate.`S.No`='"+sno+"'")
+    res2=db.selectOne("select * from pro_quantity where item_id='"+str(res['item_id'])+"'")
+    # print("Hlooo   ", str(res['item_id']), "   ", str(res['Quantity']))
+    if res2 is None:
+        db.insert("insert into pro_quantity(item_id, quantity,admin_price) values('"+str(res['item_id'])+"', '"+str(res['Quantity'])+"','pending')")
+        # db.update("update allocate set status='free' where `S.No`='"+sno+"'")
+        db.update("update product set status='collected' where `Product_id`='"+pid+"'")
+
+    else:
+        db.update("update pro_quantity set quantity=quantity+"+str(res['Quantity'])+" where id='"+str(res2['id'])+"'")
+        # db.update("update allocate set status='free' where `S.No`='"+sno+"'")
+        db.update("update product set status='collected' where `Product_id`='"+pid+"'")
+        return redirect("/view_accepted_seller")
+
+
+
+@app.route('/collected_product')
+def collected_product():
+    db=Db()
+    res=db.select("select * from pro_quantity,item WHERE pro_quantity.item_id=item.item_id")
+    return render_template('admin_side/view_collected_product.html',data=res)
+
+@app.route('/collected_product_price/<itid>',methods=['get','post'])
+def collected_product_price(itid):
+    if request.method=="POST":
+        price=request.form['textarea']
+        db=Db()
+        qry=res=db.select("select * from pro_quantity where item_id='"+itid+"'")
+        if qry is not None:
+            db.update("update pro_quantity set admin_price='"+price+"' where item_id='"+itid+"'")
+            return ''' <script> alert("Deleted");window.location = "/view_seller_request"</script>'''
+
+        else:
+            return 'no items'
+    else:
+        return render_template('admin_side/add_item_price.html')
 
 
 #######################################################################seller_side
@@ -719,12 +838,14 @@ def add_product():
         db.insert("insert into product VALUES ('','"+str(session['lid'])+"','"+pname+"','"+quantity+"','"+details+"','"+price+"',0,curdate(),'pending')")
         return '''<script>alert('product added');window.location="/seller_home"</script>'''
     else:
-        return render_template('seller_side/add_product.html')
+        db=Db()
+        res=db.select("select * from item")
+        return render_template('seller_side/add_product.html', data=res)
 
 @app.route('/view_product')
 def view_product():
     db=Db()
-    ss=db.select("select * from product where seller_id='"+str(session['lid'])+"'")
+    ss=db.select("select product.*, item.name from product, item  where product.item_id=item.item_id and seller_id='"+str(session['lid'])+"'")
     return render_template('seller_side/view_product.html',data=ss)
 
 @app.route('/update_product/<b>',methods=['get','post'])
@@ -735,12 +856,13 @@ def update_product(b):
         details = request.form['textfield3']
         price = request.form['textfield4']
         db = Db()
-        db.update("update product set Product_name='"+pname+"',Quantity='"+quantity+"',details='"+details+"',seller_price='"+price+"' where Product_id='"+b+"'")
+        db.update("update product set item_id='"+pname+"',Quantity='"+quantity+"',details='"+details+"',seller_price='"+price+"' where Product_id='"+b+"'")
         return redirect('/view_product')
     else:
         db=Db()
         ss=db.selectOne("select * from product where Product_id='"+b+"'")
-        return render_template('seller_side/update_product.html',data=ss)
+        res = db.select("select * from item")
+        return render_template('seller_side/update_product.html',data=ss, data1=res)
 
 @app.route('/delete_product_seller/<b>')
 def delete_product_seller(b):
@@ -891,136 +1013,253 @@ def cancel_booking_user(b):
         db.delete("delete from soil_report where soilreport_id='" + b + "'")
         return '''<script>alert('booking cancelled');window.location="/view_soil_booking"</script>'''
 
+# @app.route('/view_product_user')
+# def view_product_user():
+#         db = Db()
+#         ss = db.select("select  * from product")
+#         return render_template('user_side/view product.html', data=ss)
+
 @app.route('/view_product_user')
 def view_product_user():
-        db = Db()
-        ss = db.select("select  * from product")
-        return render_template('user_side/view product.html', data=ss)
+    db = Db()
+    ss = db.select("select * from pro_quantity,item where pro_quantity.item_id=item.item_id")
+    return render_template('user_side/view product.html', data=ss)
 
-    # @app.route('/cart')
+            # @app.route('/cart')
     # def cart():
     #     return render_template("user/cart view.html")
+#
+# @app.route('/add_to_cart/<b>', methods=['get', 'post'])
+# def add_to_cart(b):
+#         print(b)
+#         if request.method == "POST":
+#             db = Db()
+#             sQuantity = request.form['textfield2']
+#             # s=db.select("select * from product where Quantity>='"+Quantity+"' and Product_id='"+b+"'")
+#             # print(s)
+#             # if len(s)>0:
+#             ss = db.selectOne(
+#                 "select  * from booking_master where user_id='" + str(session['lid']) + "' and status='add to cart'")
+#             s = db.selectOne("select * from product where  Product_id='" + b + "'")
+#             print(s['Quantity'], sQuantity)
+#             print(ss)
+#             if ss is not None:
+#                 if s['Quantity'] > sQuantity:
+#                     p = s['Quantity'] > sQuantity
+#                     print("oooooooooooooooo", p)
+#                     db.update("update booking set Quantity='" + sQuantity + "' where Product_id='" + b + "'")
+#                     qrry = db.update("update product set Quantity=(Quantity-'" + sQuantity + "') where Product_id='" + b + "'")
+#
+#                     return '''<script>alert('successfully updated');window.location="/view_cart"</script>'''
+#                 else:
+#                     return '''<script>alert('enter proper quantity');window.location="/view_product_user"</script>'''
+#             else:
+#                 print("p")
+#                 if s['Quantity'] > sQuantity:
+#                     p = s['Quantity'] > sQuantity
+#                     print("oooooooooooooooo", p)
+#                     res = db.insert("insert into booking_master VALUES ('','" + str(session['lid']) + "',0,curdate(),'add to cart')")
+#                     db.insert("insert into booking VALUES ('','" + str(res) + "','" + b + "','" + sQuantity + "')")
+#                     qrry = db.update("update product set Quantity=(Quantity-'" + sQuantity + "') where Product_id='" + b + "'")
+#
+#                     return '''<script>alert('successfully added');window.location="/view_cart"</script>'''
+#                 else:
+#                     return '''<script>alert('enter proper quantity');window.location="/view_product_user"</script>'''
+#                     # else:
+#                     #     return '''<script>alert('insufficient quantity');window.location="/view_product_user"</script>'''
+#                     # else:
+#                     #
+#         else:
+#             db = Db()
+#             ss = db.selectOne("select * from product where Product_id='" + b + "'")
+#             # print(ss)
+#             return render_template('user_side/add_quantity.html', data=ss)
+
+
 
 @app.route('/add_to_cart/<b>', methods=['get', 'post'])
 def add_to_cart(b):
-        print(b)
-        if request.method == "POST":
-            db = Db()
-            Quantity = request.form['textfield2']
-            # s=db.select("select * from product where Quantity>='"+Quantity+"' and Product_id='"+b+"'")
-            # print(s)
-            # if len(s)>0:
-            ss = db.selectOne(
-                "select  * from booking_master where user_id='" + str(session['lid']) + "' and status='add to cart'")
-            s = db.selectOne("select * from product where  Product_id='" + b + "'")
-            print(s['Quantity'], Quantity)
-            print(ss)
-            if ss is not None:
-                if s['Quantity'] > Quantity:
-                    p = s['Quantity'] > Quantity
-                    print("oooooooooooooooo", p)
-                    db.update("update booking set Quantity='" + Quantity + "' where Product_id='" + b + "'")
-                    return '''<script>alert('successfully updated');window.location="/view_cart"</script>'''
+    print(b)
+    if request.method == "POST":
+        db = Db()
+        sQuantity = request.form['textfield2']
+        r = db.selectOne("select * from booking_master where user_id='" + str(session['lid']) + "' and status='add to cart'")
+        qry5=db.selectOne("select quantity from pro_quantity WHERE id='"+b+"'")
+        q=qry5['quantity']
+        if r is not None:
+            qry3 = db.selectOne("select * from booking WHERE  master_id='" + str(r['master_id']) + "' and product_id='" + b + "'")
+            if qry3 is not None:
+                if int(sQuantity) <= int(q):
+                    qry4 = db.update("update booking set u_quantity=(u_quantity+'" + sQuantity + "') where booking_id='" + str(qry3['booking_id']) + "'")
+                    qrry6 = db.update("update pro_quantity set quantity=(quantity-'" + sQuantity + "') where id='" + b + "'")
+                    return '''<script>alert('successfully added');window.location="/view_product_user"</script>'''
+
                 else:
-                    return '''<script>alert('enter proper quantity');window.location="/view_product_user"</script>'''
+                  return '''<script>alert('enter proper quantity');window.location="/view_product_user"</script>'''
             else:
-                print("p")
-                if s['Quantity'] > Quantity:
-                    p = s['Quantity'] > Quantity
-                    print("oooooooooooooooo", p)
-                    res = db.insert("insert into booking_master VALUES ('','" + str(
-                        session['lid']) + "',0,curdate(),'add to cart')")
-                    db.insert("insert into booking VALUES ('','" + str(res) + "','" + b + "','" + Quantity + "')")
-                    return '''<script>alert('successfully added');window.location="/view_cart"</script>'''
+                if int(sQuantity) <= int(q):
+
+
+                    query = "insert into booking values ('','" + str( r['master_id']) + "','" + b + "','" + sQuantity + "')"
+                    db.insert(query)
+                    qrry7 = db.update("update pro_quantity set quantity=(quantity-'" + sQuantity + "') where id='" + b + "'")
+                    return '''<script>alert('successfully added');window.location="/view_product_user"</script>'''
                 else:
                     return '''<script>alert('enter proper quantity');window.location="/view_product_user"</script>'''
-                    # else:
-                    #     return '''<script>alert('insufficient quantity');window.location="/view_product_user"</script>'''
-                    # else:
-                    #
         else:
-            db = Db()
-            ss = db.selectOne("select * from product where Product_id='" + b + "'")
-            # print(ss)
-            return render_template('user_side/add_quantity.html', data=ss)
+            if int(sQuantity) <= int(q):
+
+                qry8 = db.insert("insert into booking_master  VALUES ('','"+str(session['lid'])+"',0,curdate(),'add to cart')")
+                db.insert("insert into booking VALUES ('','"+str(qry8)+"','"+b+"','"+sQuantity+"')")
+                qrry7 = db.update("update pro_quantity set quantity=(quantity-'" + sQuantity + "') where id='" + b + "'")
+                return '''<script>alert('successfully added');window.location="/view_product_user"</script>'''
+            else:
+                return '''<script>alert('enter proper quantity');window.location="/view_product_user"</script>'''
+
+    else:
+        db = Db()
+        ss = db.selectOne("select * from pro_quantity where id='" + b + "'")
+        # print(ss)
+        return render_template('user_side/add_quantity.html', data=ss)
+
+
+
+# @app.route('/view_cart')
+# def view_cart():
+#         db = Db()
+#         ss = db.select( "select sum(booking.quantity* product.admin_price) AS totalsum, product.admin_price AS h,booking.quantity AS d,booking.booking_id AS b ,product.*,booking.*,booking_master.* from booking,booking_master,product where booking.master_id=booking_master.master_id and booking.product_id=product.Product_id  and booking_master.user_id='" + str(session['lid']) + "' and booking_master.status='add to cart' ")
+#         v = db.select("select sum(booking.quantity* product.admin_price) AS totalsum,booking.*,product.* from booking,product where booking.product_id=product.Product_id")
+#         return render_template('user_side/cart view.html', a=ss, data=v)
+
 
 @app.route('/view_cart')
 def view_cart():
         db = Db()
-        ss = db.select(
-            "select sum(booking.quantity* product.admin_price) AS totalsum, product.admin_price AS h,booking.quantity AS d,booking.booking_id AS b ,product.*,booking.*,booking_master.* from booking,booking_master,product where booking.master_id=booking_master.master_id and booking.product_id=product.Product_id  and booking_master.user_id='" + str(
-                session['lid']) + "' and booking_master.status='add to cart' ")
-        v = db.select(
-            "select sum(booking.quantity* product.admin_price) AS totalsum,booking.*,product.* from booking,product where booking.product_id=product.Product_id")
-        return render_template('user_side/cart view.html', a=ss, data=v)
+        qry=db.selectOne("select sum(booking.u_quantity*pro_quantity.admin_price) as total_amount,booking.*,pro_quantity.*,booking_master.*,item.* from booking,pro_quantity,booking_master,item where booking.master_id=booking_master.master_id and booking.product_id=pro_quantity.id and booking_master.user_id='"+str(session['lid'])+"' and pro_quantity.item_id=item.item_id and  booking_master.status='add to cart'")
+        q=qry['total_amount']
+        q1=int(q)
+        print(q)
+        mq=qry['master_id']
+        print(mq)
 
-@app.route('/book_mode/<mid>', methods=['get', 'post'])
-def book_mode(mid):
-        if request.method == "POST":
-            mode = request.form['RadioGroup1']
-            amount = request.form['text']
-            print(mode)
-            if mode == 'offline':
-                db = Db()
-                db.update("update booking_master set status='cash on delivery' where master_id='" + mid + "' ")
-                # qut=db.selectOne("select quantity from booking where master_id='" + mid + "' ")
-                # prid = db.selectOne("select product_id from booking where master_id='" + mid + "' ")
-                # db.update("update ")
-                return '''<script>alert('THANK YOU !!cash on delivery');window.location="/user_home"</script>'''
-            else:
-                db = Db()
+        qry2=db.select("select booking.u_quantity*pro_quantity.admin_price as total_price,booking.*,pro_quantity.*,booking_master.*,item.* from booking,pro_quantity,booking_master,item where booking.master_id=booking_master.master_id and booking.product_id=pro_quantity.id and booking_master.user_id='"+str(session['lid'])+"' and pro_quantity.item_id=item.item_id and  booking_master.status='add to cart'")
+        return render_template('user_side/cart view.html', data=qry2,data1=qry,am=q1,m=mq)
 
-                v = db.select(
-                    "select sum(booking.quantity* product.admin_price) AS totalsum,booking.quantity as q,booking.*,product.* from booking,product where booking.product_id=product.Product_id")
-                db.update("update booking_master set amount='" + amount + "' where master_id='" + mid + "'")
-                return render_template('user_side/add_payment_user.html', a=v, data=mid)
-        else:
-            db = Db()
-            ss = db.select(
-                "select product.admin_price AS h,booking.quantity AS d,booking.booking_id AS b ,product.*,booking.*,booking_master.* from booking,booking_master,product where booking.master_id=booking_master.master_id and booking.product_id=product.Product_id  and booking_master.user_id='" + str(
-                    session['lid']) + "' ")
-            v = db.select(
-                "select sum(booking.quantity* product.admin_price) AS totalsum,booking.*,product.* from booking,product where booking.product_id=product.Product_id")
 
-            return render_template('user_side/book_radio.html', a=ss, data=v)
+# @app.route('/book_mode/<mid>', methods=['get', 'post'])
+# def book_mode(mid):
+#         if request.method == "POST":
+#             mode = request.form['RadioGroup1']
+#             amount = request.form['text']
+#             print(mode)
+#             if mode == 'offline':
+#                 db = Db()
+#                 db.update("update booking_master set status='cash on delivery' where master_id='" + mid + "' ")
+#                 # qut=db.selectOne("select quantity from booking where master_id='" + mid + "' ")
+#                 # prid = db.selectOne("select product_id from booking where master_id='" + mid + "' ")
+#                 # db.update("update ")
+#                 return '''<script>alert('THANK YOU !!cash on delivery');window.location="/user_home"</script>'''
+#             else:
+#                 db = Db()
+#
+#                 v = db.select(
+#                     "select sum(booking.quantity* product.admin_price) AS totalsum,booking.quantity as q,booking.*,product.* from booking,product where booking.product_id=product.Product_id")
+#                 db.update("update booking_master set amount='" + amount + "' where master_id='" + mid + "'")
+#                 return render_template('user_side/add_payment_user.html', a=v, data=mid)
+#         else:
+#             db = Db()
+#             ss = db.select(
+#                 "select product.admin_price AS h,booking.quantity AS d,booking.booking_id AS b ,product.*,booking.*,booking_master.* from booking,booking_master,product where booking.master_id=booking_master.master_id and booking.product_id=product.Product_id  and booking_master.user_id='" + str(
+#                     session['lid']) + "' ")
+#             v = db.select(
+#                 "select sum(booking.quantity* product.admin_price) AS totalsum,booking.*,product.* from booking,product where booking.product_id=product.Product_id")
+#
+#             return render_template('user_side/book_radio.html', a=ss, data=v)
 
-@app.route('/add_payment', methods=['get', 'post'])
-def add_payment():
+@app.route('/book_mode/<am>/<mid>', methods=['get', 'post'])
+def book_mode(am,mid):
+
+
+    if request.method == "POST":
+                mode = request.form['RadioGroup1']
+                print(mode)
+                if mode == 'offline':
+                    db = Db()
+                    db.update("update booking_master set status='cash on delivery',amount='"+am+"' where master_id='" + mid + "' ")
+                    return '''<script>alert('THANK YOU !!cash on delivery');window.location="/user_home"</script>'''
+                else:
+                    return render_template('user_side/add_payment_user.html',am=am,m=mid)
+    else:
+        return render_template('user_side/book_radio.html')
+
+
+@app.route('/add_payment/<a>/<m>', methods=['get', 'post'])
+def add_payment(a,m):
         if request.method == "POST":
             db = Db()
             acc = request.form['abc']
             ifsc = request.form['efg']
-            totalsum = request.form['t1']
-            quantity = request.form['t3']
-            pid = request.form['t2']
-            print("sdfbgn", quantity, pid)
+            # totalsum = request.form['t1']
+            # quantity = request.form['t3']
+            # pid = request.form['t2']
+            # print("sdfbgn", quantity, pid)
             res = db.selectOne("select * from bank WHERE account_no='" + acc + "' and ifsc='" + ifsc + "' and person_id='" + str(session["lid"]) + "'")
             # b = db.selectOne("select quantity from product where ")
             if res is not None:
                 # p= int(res['amount'])
                 # print(p,totalsum)
-                a = float(totalsum)
-                s = int(res['amount']) - float(totalsum)
-                print(s, a)
+                # a = float(totalsum)
+                # s = int(res['amount']) - float(totalsum)
+                # print(s, a)
 
-                db.update("update booking_master set status='booked'  where user_id='" + str(session['lid']) + "' ")
+                db.update("update booking_master set status='paid',amount='"+a+"'  where master_id='" + m + "' ")
 
-                db.update("update bank set amount='" + str(s) + "' where person_id='" + str(
-                    session["lid"]) + "' and account_no='" + acc + "' ")
+                db.update("update bank set amount='" + str(a) + "' where person_id='" + str(session["lid"]) + "' and account_no='" + acc + "' ")
                 db.update("update bank set amount=amount+'" + str(a) + "' where type='admin'  ")
                 return ''' <script> alert("Booked Successfully");window.location = "/user_home"  </script>'''
-
             else:
-                return ''' <script> alert("Enter Correct Account Number");window.location = "/view_cart"  </script>'''
-        else:
-            db = Db()
-            ss = db.select(
-                "select product.admin_price AS h,booking.quantity AS d,booking.booking_id AS b ,product.*,booking.*,booking_master.* from booking,booking_master,product where booking.master_id=booking_master.master_id and booking.product_id=product.Product_id  and booking_master.user_id='" + str(
-                    session['lid']) + "' ")
-            v = db.select(
-                "select sum(booking.quantity* product.admin_price) AS totalsum,booking.*,product.* from booking,product where booking.product_id=product.Product_id")
+                return ''' <script> alert("Wrong bank details");window.location = "/view_cart"  </script>'''
 
-            return render_template('user_side/add_payment_user.html', a=v)
+        else:
+            return render_template('user_side/add_payment.html')
+
+# @app.route('/add_payment', methods=['get', 'post'])
+# def add_payment():
+#         if request.method == "POST":
+#             db = Db()
+#             acc = request.form['abc']
+#             ifsc = request.form['efg']
+#             totalsum = request.form['t1']
+#             quantity = request.form['t3']
+#             pid = request.form['t2']
+#             print("sdfbgn", quantity, pid)
+#             res = db.selectOne("select * from bank WHERE account_no='" + acc + "' and ifsc='" + ifsc + "' and person_id='" + str(session["lid"]) + "'")
+#             # b = db.selectOne("select quantity from product where ")
+#             if res is not None:
+#                 # p= int(res['amount'])
+#                 # print(p,totalsum)
+#                 a = float(totalsum)
+#                 s = int(res['amount']) - float(totalsum)
+#                 print(s, a)
+#
+#                 db.update("update booking_master set status='booked'  where user_id='" + str(session['lid']) + "' ")
+#
+#                 db.update("update bank set amount='" + str(s) + "' where person_id='" + str(
+#                     session["lid"]) + "' and account_no='" + acc + "' ")
+#                 db.update("update bank set amount=amount+'" + str(a) + "' where type='admin'  ")
+#                 return ''' <script> alert("Booked Successfully");window.location = "/user_home"  </script>'''
+#
+#             else:
+#                 return ''' <script> alert("Enter Correct Account Number");window.location = "/view_cart"  </script>'''
+#         else:
+#             db = Db()
+#             ss = db.select(
+#                 "select product.admin_price AS h,booking.quantity AS d,booking.booking_id AS b ,product.*,booking.*,booking_master.* from booking,booking_master,product where booking.master_id=booking_master.master_id and booking.product_id=product.Product_id  and booking_master.user_id='" + str(
+#                     session['lid']) + "' ")
+#             v = db.select(
+#                 "select sum(booking.quantity* product.admin_price) AS totalsum,booking.*,product.* from booking,product where booking.product_id=product.Product_id")
+#
+#             return render_template('user_side/add_payment_user.html', a=v)
 
 @app.route('/user_feedback', methods=['GET', 'POST'])
 def user_feedback():
@@ -1060,13 +1299,23 @@ def soil_request():
         else:
             return render_template("user_side/sent soil report.html", res=obj)
 
+# @app.route('/view_booking')
+# def view_booking():
+#         db = Db()
+#         obj = db.selectOne("select * from booking_master,product,booking where user_id='" + str(session["lid"]) + "' and  booking_master.master_id=booking.master_id and booking.Product_id=product.Product_id")
+#
+#         return render_template("user_side/view booking.html", res=obj)
+# ----------------------------------------------------------------------
+
 @app.route('/view_booking')
 def view_booking():
         db = Db()
-        obj = db.selectOne("select * from booking_master,product,booking where user_id='" + str(session[
-                                                                                                    "lid"]) + "' and  booking_master.master_id=booking.master_id and booking.Product_id=product.Product_id")
+        obj = db.select("select * from booking,booking_master,pro_quantity,item where booking.product_id=pro_quantity.id and pro_quantity.item_id=item.item_id and booking.master_id=booking_master.master_id and booking_master.status!='add to cart' and booking_master.user_id=5")
 
-        return render_template("user_side/view booking.html", res=obj)
+        return render_template("user_side/view user_booking.html", res=obj)
+
+
+
 
 @app.route('/soil_payment', methods=['GET', 'POST'])
 def soil_payment():
