@@ -10,13 +10,19 @@
 <body>
 
    <form  >
-    <table border="03">
+    <table border="0" class="table table-hover">
         <tr><img src=""> </tr>
       <tr><td>
         <label ><b>user Name</b></label>
         </td>
         <td>{{ res['user_name'] }} </td></tr>
-      <tr><td>
+      <tr>
+          <td>
+        <label ><b>pic</b></label>
+        </td>
+        <td><img src="{{ res['profile_photo'] }}" alt="" height="100" width="100"/></td></tr>
+      <tr>
+          <td>
         <label ><b>Street</b></label>
         </td>
         <td>{{ res['street'] }}

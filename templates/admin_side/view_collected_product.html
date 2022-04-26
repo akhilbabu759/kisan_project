@@ -25,8 +25,15 @@
 
       <td>&nbsp;&nbsp;{{ i['quantity'] }}</td>
 
-         <td> <p><a href="/collected_product_price/{{ i['item_id'] }}">price</a></p>
-     </td>
+         <td>
+                       {% if i.admin_price==0 %}
+
+             <p><a href="/collected_product_price/{{ i['item_id'] }}">price</a></p>
+         {% else %}
+                      <p><a href="/update_price/{{ i['item_id'] }}">update price</a></p>
+         {% endif %}
+         </td>
+
 {#      <p><a href="#">Send Payment</a></p></td>#}
     </tr>
       {% endfor %}

@@ -9,7 +9,7 @@
 
 <body>
 <form action="" method="get">
-<table  border="03">
+<table  border="0" class="table table-hover">
   <tr>
     <td>#</td>
    
@@ -26,11 +26,19 @@
   <tr>
     <td>{{ loop.index }}</td>
     <td>{{ i['name'] }}</td>
-{#    <td>{{ i['details'] }}</td>#}
-     <td>{{ i['quantity'] }}</td>
-    <td>{{ i['admin_price'] }}</td>
+    {% if i.quantity!=0 %}
+     <td>{{ i.quantity }}</td>
+  {% else %}
+       <td>no stock</td>
+  {% endif %}
+      <td> ₹ {{ i['admin_price'] }}  /-</td>
+      {% if i.admin_price==0 %}
+      <td> currently unavailable  </td>
+      {% else %}
 
      <td><a href="/add_to_cart/{{ i['id'] }}">add to cart</a></td>
+      {% endif %}
+
      
     
   </tr>

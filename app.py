@@ -6,7 +6,7 @@ import datetime
 app = Flask(__name__)
 app.secret_key = "abc"
 
-syspath=r"C:\Users\akhil\Downloads\flaskProject5\static\kisan\\"
+syspath=r"D:\flaskProject5\static\kisan\\"
 
 
 
@@ -169,7 +169,7 @@ def allocate_soil_emp(b):
 
     r = db.select("select * from soil_report,allocate where soil_report.soilreport_id=allocate.request_id and request_id='"+b+"' ")
     if len(r) >0:
-        return '''<script>alert('Already assigned');window.location="/soil_report"</script>'''
+        return '''<script>alert('Already assigned');window.location="/view_soil_request"</script>'''
     else:
 
         qry=db.select("select * from employee")
@@ -181,7 +181,7 @@ def allocate_soil_emp_user(b):
 
     r = db.select("select * from soil_report,allocate where soil_report.soilreport_id=allocate.request_id and request_id='"+b+"' ")
     if len(r) >0:
-        return '''<script>alert('Already assigned');window.location="/soil_report_user"</script>'''
+        return '''<script>alert('Already assigned');window.location="/view_soil_request"</script>'''
     else:
 
         qry=db.select("select * from employee")
@@ -196,10 +196,10 @@ def assign_emp(b,c):
     ss = db.select("select * from allocate,employee where allocate.employee_id=employee.employee_id and status='pending' and allocate.employee_id='"+str(b)+"'")
     print(ss)
     if len(ss)>0:
-        return '''<script>alert('Employee on work');window.location="/soil_report"</script>'''
+        return '''<script>alert('Employee on work');window.location="/view_soil_request"</script>'''
     else:
         db.insert("insert into allocate values('','"+str(c)+"','"+b+"','soil','pending',curdate())")
-        return '''<script>alert('success');window.location="/soil_report"</script>'''
+        return '''<script>alert('success');window.location="/view_soil_request"</script>'''
 
 @app.route('/view_allocated_emp/<b>')
 def view_allocated_emp(b):
@@ -253,7 +253,7 @@ def booking_master_report(b_id):
         path='/static/kisan/'+d+'.pdf'
         db = Db()
         db.update("update soil_report set status = '"+path+"' where soilreport_id='" +str( b_id) + "' ")
-        return '''<script>alert('report added');window.location="/home"</script>'''
+        return '''<script>alert('report added');window.location="/view_soil_request"</script>'''
     else:
         return render_template("admin_side/Booking Master Report.html")
 
@@ -262,26 +262,27 @@ def booking_master_report(b_id):
 def view_payment_details():
     if request.method=="POST":
         db=Db()
-        mtype=request.form['mtype']
+
         mnth=request.form['month']
+        print(mnth)
         yr=request.form['person']
         print(yr)
 
-        if mtype=='seller' :
 
-            ss = db.select("select * from seller,product where status='accepted' and  month(`date`)='" + mnth + "' and product.seller_id=seller.seller_id")
-            s = db.select("select sum(Quantity * seller_price) as total,product.*,seller.* from product,seller where status='accepted' and month(`date`)='" + mnth + "' and year(`date`)='"+ yr +"' and product.seller_id=seller.seller_id")
-            print(ss)
-            if len(ss)>0:
+
+        ss = db.select("select * from seller,product where status='accepted' and  month(`date`)='" + mnth + "' and product.seller_id=seller.seller_id")
+        s = db.select("select sum(Quantity * seller_price) as total,product.*,seller.* from product,seller where status='accepted' and month(`date`)='" + mnth + "' and year(`date`)='"+ yr +"' and product.seller_id=seller.seller_id")
+        print(ss)
+        if len(ss)>0:
                 for i in s:
 
                     a=float(i['Quantity'])
                     print(a*i['seller_price'])
                     p=a*i['seller_price']
                     ab=int(p)
-                return render_template('admin_side/View Payment.html',data=ss,a=s)
-            else:
-                return redirect('/view_payment_details')
+                    return render_template('admin_side/View Payment.html',data=ss,a=s)
+
+
         # elif mtype=='user':
 
         else:
@@ -413,7 +414,8 @@ def view_complaint_admin():
 
 @app.route('/complaint')
 def complaint():
-    qry = "select * from complaint,user,seller where complaint.user_id=user.user_id "
+    qry = "select * from complaint,user where complaint.user_id=user.user_id "
+
     obj = Db()
     res = obj.select(qry)
     return render_template("admin_side/View Complaint.html",res=res)
@@ -432,7 +434,7 @@ def seller_complaint_replay(c_id):
         reply=request.form['textarea']
         db = Db()
         db.update("update complaint set reply = '"+reply+"', reply_date=curdate() where compaint_id = '"+c_id+"'")
-        return ''' <script> alert("Send Sucessfully");window.location = "/complaint"  </script>'''
+        return ''' <script> alert("Send Sucessfully");window.location = "/seller_complaint_admin"  </script>'''
     else:
         return render_template("admin_side/Complaint Replay.html")
 
@@ -443,7 +445,7 @@ def user_complaint_replay(c_id):
         reply=request.form['textarea']
         db = Db()
         db.update("update complaint set reply = '"+reply+"', reply_date=curdate() where compaint_id = '"+c_id+"'")
-        return ''' <script> alert("Send Sucessfully");window.location = "/user_complaint_admin"  </script>'''
+        return ''' <script> alert("Send Sucessfully");window.location = "/complaint"  </script>'''
     else:
         return render_template("admin_side/Complaint Replay.html")
 
@@ -638,7 +640,7 @@ def collected_entry(pid):
         db.insert("insert into pro_quantity(item_id, quantity,admin_price) values('"+str(res['item_id'])+"', '"+str(res['Quantity'])+"','pending')")
         # db.update("update allocate set status='free' where `S.No`='"+sno+"'")
         db.update("update product set status='collected' where `Product_id`='"+pid+"'")
-
+        return ''' <script> alert("done");window.location = "/view_accepted_seller"  </script>'''
     else:
         db.update("update pro_quantity set quantity=quantity+"+str(res['Quantity'])+" where id='"+str(res2['id'])+"'")
         # db.update("update allocate set status='free' where `S.No`='"+sno+"'")
@@ -661,12 +663,29 @@ def collected_product_price(itid):
         qry=res=db.select("select * from pro_quantity where item_id='"+itid+"'")
         if qry is not None:
             db.update("update pro_quantity set admin_price='"+price+"' where item_id='"+itid+"'")
-            return ''' <script> alert("Deleted");window.location = "/view_seller_request"</script>'''
+            return ''' <script> alert("success");window.location = "/collected_product"</script>'''
 
         else:
             return 'no items'
     else:
         return render_template('admin_side/add_item_price.html')
+
+@app.route('/update_price/<itid>', methods=['get', 'post'])
+def update_price(itid):
+    if request.method == "POST":
+        price = request.form['textarea']
+        db = Db()
+        # qry = res = db.select("select * from pro_quantity where item_id='" + itid + "'")
+        # if qry is not None:
+        db.update("update pro_quantity set admin_price='" + price + "' where item_id='" + itid + "'")
+        return ''' <script> alert("updated");window.location = "/collected_product"</script>'''
+
+        # else:
+        #     return 'no items'
+    else:
+        db=Db()
+        qry=db.selectOne("select * from pro_quantity where item_id='"+itid+"'")
+        return render_template('admin_side/update_admin_price.html',data=qry)
 
 
 #######################################################################seller_side
@@ -682,11 +701,15 @@ def seller_registration():
         phn=request.form['ph']
         email=request.form['eml']
         passw= request.form['pas']
+        cp= request.form['cp']
         db=Db()
-        res=db.insert("insert into login VALUE('','"+email+"','"+passw+"','seller')")
-        db.insert("insert into seller VALUE ('"+str(res)+"','"+name+"','"+street+"','"+locality+"','"+district+"','"+phn+"','"+email+"')")
+        if passw==cp:
+            res=db.insert("insert into login VALUE('','"+email+"','"+cp+"','seller')")
+            db.insert("insert into seller VALUE ('"+str(res)+"','"+name+"','"+street+"','"+locality+"','"+district+"','"+phn+"','"+email+"')")
+            return ''' <script> alert("Registered Sucessfully");window.location = "/"  </script>'''
 
-        return ''' <script> alert("Registered Sucessfully");window.location = "/"  </script>'''
+        else:
+            return ''' <script> alert("password mismatch!!");window.location = "/seller_registration"  </script>'''
     else:
         return render_template('seller_side/seller_registraction.html')
 
@@ -899,6 +922,9 @@ def view_payment_seller():
         ss=db.select("select * from product where status='accepted' and seller_id='"+str(session['lid'])+"' and month(`date`)='"+mnth+"'")
         s=db.select("select sum(Quantity * seller_price) as total,product.* from product where status='accepted' and seller_id='"+str(session['lid'])+"' and month(`date`)='"+mnth+"'")
         print(ss)
+        # ss=db.select("select * from product where status='accepted' and seller_id='"+str(session['lid'])+"' and month(`date`)='"+mnth+"'")
+        # s=db.select("select sum(Quantity * seller_price) as total,product.* from product where status='accepted' and seller_id='"+str(session['lid'])+"' and month(`date`)='"+mnth+"'")
+                
 
         return render_template('seller_side/payment_view.html',data=ss,a=s)
     else:
@@ -929,8 +955,8 @@ def add_user():
             name = request.form['textfield2']
             photo = request.files['fileField']
             date = datetime.datetime.now().strftime("%y%m%d-%H%M%S")
-            photo.save = (r"C:\flaskProject5\static\images/" + date + '.jpg')
-            path = ("static/images/" + date + '.jpg')
+            photo.save(r"D:\flaskProject5\static\images//" + date + '.jpg')
+            path = "/static/images/" + date + '.jpg'
             gender = request.form['radio']
             street = request.form['textfield3']
             Locality = request.form['textfield4']
@@ -939,11 +965,13 @@ def add_user():
             email = request.form['textfield6']
             password = request.form['textfield7']
             confirmpassword = request.form['textfield8']
-            res = db.insert("insert into login values ('','" + email + "','" + str(password) + "','user')")
-            db.insert("insert into user values ('" + str(
-                res) + "','" + name + "','" + street + "','" + phoneno + "','" + gender + "','" + Locality + "','" + district + "','" + str(
-                path) + "','" + email + "')")
-            return '''<script>alert('register successfull');window.location="/"</script>'''
+            if password==confirmpassword:
+                res = db.insert("insert into login values ('','" + email + "','" + confirmpassword + "','user')")
+                db.insert("insert into user values ('" + str(res) + "','" + name + "','" + street + "','" + phoneno + "','" + gender + "','" + Locality + "','" + district + "','" + str(path) + "','" + email + "')")
+                return '''<script>alert('register successfull');window.location="/"</script>'''
+            else:
+                return '''<script>alert('Password mismatch!!');window.location="/add_user"</script>'''
+
         else:
             return render_template('user_side/user_registration.html')
 
@@ -967,10 +995,28 @@ def center_update(c_id):
             locality = request.form['local']
             district = request.form['district']
             phn = request.form['ph']
+            photo = request.files['fileField']
+            date = datetime.datetime.now().strftime("%y%m%d-%H%M%S")
+            photo.save(r"D:\flaskProject5\static\images//" + date + '.jpg')
+            path = "/static/images/" + date + '.jpg'
+
             print(phn)
             # email=request.form['eml']
             # passw= request.form['pas']
-            db.update("update user set user_name = '" + name + "',street = '" + street + "',locality = '" + locality + "', district = '" + district + "', phone_number='" + phn + "'  where user_id ='" + str(session['lid']) + "'")
+            if request.files!=None:
+                if photo.filename!="":
+                    db.update("update user set user_name = '" + name + "',street = '" + street + "',locality = '" + locality + "', district = '" + district + "',profile_photo='"+str(path)+"', phone_number='" + phn + "'  where user_id ='" + str(session['lid']) + "'")
+                    return ''' <script> alert("Updated Sucessfully");window.location = "/user_view_profile"  </script>'''
+
+                else:
+                    db.update("update user set user_name = '" + name + "',street = '" + street + "',locality = '" + locality + "', district = '" + district + "', phone_number='" + phn + "'  where user_id ='" + str(session['lid']) + "'")
+                    return ''' <script> alert("Updated Sucessfully");window.location = "/user_view_profile"  </script>'''
+
+            else:
+                db.update("update user set user_name = '" + name + "',street = '" + street + "',locality = '" + locality + "', district = '" + district + "', phone_number='" + phn + "'  where user_id ='" + str( session['lid']) + "'")
+                return ''' <script> alert("Updated Sucessfully");window.location = "/user_view_profile"  </script>'''
+
+
             # db.update("update login set user_name='" + name + "',password='"+passw+"' where login_id='"+str(session["lid"])+"'")
             return ''' <script> alert("Updated Sucessfully");window.location = "/user_view_profile"  </script>'''
         else:
@@ -1136,14 +1182,23 @@ def add_to_cart(b):
 def view_cart():
         db = Db()
         qry=db.selectOne("select sum(booking.u_quantity*pro_quantity.admin_price) as total_amount,booking.*,pro_quantity.*,booking_master.*,item.* from booking,pro_quantity,booking_master,item where booking.master_id=booking_master.master_id and booking.product_id=pro_quantity.id and booking_master.user_id='"+str(session['lid'])+"' and pro_quantity.item_id=item.item_id and  booking_master.status='add to cart'")
-        q=qry['total_amount']
-        q1=int(q)
-        print(q)
-        mq=qry['master_id']
-        print(mq)
+        if qry['total_amount'] is not None:
+            q=qry['total_amount']
+            print(q)
+            q1=int(q)
+            print(q)
+            mq=qry['master_id']
+            print(mq)
+            qry2 = db.select(
+                "select booking.u_quantity*pro_quantity.admin_price as total_price,booking.*,pro_quantity.*,booking_master.*,item.* from booking,pro_quantity,booking_master,item where booking.master_id=booking_master.master_id and booking.product_id=pro_quantity.id and booking_master.user_id='" + str(
+                    session[
+                        'lid']) + "' and pro_quantity.item_id=item.item_id and  booking_master.status='add to cart'")
+            return render_template('user_side/cart view.html', data=qry2, data1=qry, am=q1, m=mq)
+        else:
+            print("eeeeeeeeeeeeeeeeeeee")
+        return render_template('user_side/cart view.html')
 
-        qry2=db.select("select booking.u_quantity*pro_quantity.admin_price as total_price,booking.*,pro_quantity.*,booking_master.*,item.* from booking,pro_quantity,booking_master,item where booking.master_id=booking_master.master_id and booking.product_id=pro_quantity.id and booking_master.user_id='"+str(session['lid'])+"' and pro_quantity.item_id=item.item_id and  booking_master.status='add to cart'")
-        return render_template('user_side/cart view.html', data=qry2,data1=qry,am=q1,m=mq)
+
 
 
 # @app.route('/book_mode/<mid>', methods=['get', 'post'])
@@ -1339,7 +1394,7 @@ def soil_payment():
                         "update soil_report set status='booked' where soilreport_id='" + str(session['soil_id']) + "' ")
                     db.update("update bank set amount='" + str(amount1 - 500) + "' where person_id='" + str(
                         session["lid"]) + "' and account_no='" + acc + "' ")
-                    return ''' <script> alert("Booked Successfully");window.location = "/soil_payment"  </script>'''
+                    return ''' <script> alert("Booked Successfully");window.location = "/soil_request"  </script>'''
                 else:
                     return ''' <script> alert("insufficient Balance");window.location = "/soil_payment"  </script>'''
             else:
@@ -2192,4 +2247,4 @@ def view_reply_user():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=4000)

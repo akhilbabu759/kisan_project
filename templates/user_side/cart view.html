@@ -9,7 +9,8 @@
 
 <body>
 <form action="" method="get">
-<table  border="03">
+{% if data %}
+<table  border="0" class="table table-hover">
   <tr>
     <td>#</td>
    
@@ -48,6 +49,7 @@
 
 
 </form>
+{% endif %}
 </body>
 </html>
 {% endblock %}

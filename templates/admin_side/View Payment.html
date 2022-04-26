@@ -9,8 +9,7 @@
 
 <body>
 <form action="/view_payment_details" method="post"><table  border="03">
-<tr><select name="mtype"><option value="seller">Seller</option>
-            <option  value="employee">Employee</option ></select></tr>
+
     <tr><select name="month"><option value="1">January</option>
             <option  value="2">February</option >
             <option  value="3">March</option >
@@ -28,7 +27,9 @@
     <tr><input type="submit" name="button" value="Search" ></tr>
 </table></form>
 
-<form><table border="03">
+{% if data1 %}
+<form>
+    <table border="03">
   <tr>
 
     <td>#</td>
@@ -85,7 +86,9 @@
  {% endfor %}
 <a href="/send_payment_employee">send Payment to employee</a>
 
-</table></form>
+</table>
+</form>
+{% endif %}
 
 </body>
 </html>

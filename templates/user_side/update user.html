@@ -8,16 +8,22 @@
 </head>
 
 <body>
- <form action="/user_update/{{ res['user_id'] }}" method="post" >
+ <form action="/user_update/{{ res['user_id'] }}" method="post"  enctype="multipart/form-data">
         
          
-          <table> 
+          <table border="0" class="table table-hover">
               <tr><td>
                 <label ><b>Center Name</b></label>
               </td>
               <td> <input type="text" name="abc" value="{{ res['user_name'] }}">
               </td></tr>
-              <tr><td>
+               <tr>
+              <td>Profile</td>
+              <td><img src="{{ res.profile_pic }}" alt="" height="100" width="100"/>
+                  <input type="file" name="fileField" id="fileField" /></td>
+            </tr>
+              <tr>
+                  <td>
                 <label ><b>Street</b></label>
               </td>
               <td> <input type="text" name="str" value="{{ res['street'] }}">
