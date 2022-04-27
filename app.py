@@ -438,6 +438,32 @@ def seller_complaint_replay(c_id):
     else:
         return render_template("admin_side/Complaint Replay.html")
 
+@app.route('/seller_pay/<sid>')
+def seller_pay(sid):
+        qry = "select * from product where seller_id='" + str(sid) + "' and status='collected'"
+
+        obj = Db()
+        res = obj.selectOne(qry)
+        aa=obj.selectOne("select * from bank where type='admin'")
+        bb=aa['amount']
+        print(bb)
+        print(res)
+
+
+        if res is not None:
+            p=res['seller_price']
+            q=res['Quantity']
+            amt=int(q)*int(p)
+            print(amt, sid)
+            balan=float(bb)-float(amt)
+            obj.update("update product set status='paid' where seller_id='"+str(sid)+"' ")
+            obj.update("update bank set amount='"+str(amt)+"' where person_id='"+str(sid)+"' and type='seller'")
+            obj.update("update bank set amount='"+str(balan)+"' where type='admin' ")
+            return ''' <script> alert("paid ");window.location = "/view_accepted_seller"  </script>'''
+        else:
+            return ''' <script> alert("already paid ");window.location = "/view_accepted_seller"  </script>'''
+
+
 
 @app.route('/user_complaint_replay/<c_id>',methods=['GET','POST'])
 def user_complaint_replay(c_id):
@@ -924,7 +950,7 @@ def view_payment_seller():
         print(ss)
         # ss=db.select("select * from product where status='accepted' and seller_id='"+str(session['lid'])+"' and month(`date`)='"+mnth+"'")
         # s=db.select("select sum(Quantity * seller_price) as total,product.* from product where status='accepted' and seller_id='"+str(session['lid'])+"' and month(`date`)='"+mnth+"'")
-                
+
 
         return render_template('seller_side/payment_view.html',data=ss,a=s)
     else:
@@ -2247,4 +2273,4 @@ def view_reply_user():
 
 
 if __name__ == '__main__':
-    app.run(port=4000)
+    app.run(port=3000)

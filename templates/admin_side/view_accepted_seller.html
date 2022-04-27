@@ -39,8 +39,9 @@
                  <p><a href="/collected_entry/{{ i.Product_id }}">Collection Entry</a></p>
      {% else %}
             {{ i.status }}
-     {% endif %}
-      </td>
+     {% endif %} </td>
+
+     <td><a href="/seller_pay/{{ i.seller_id }}"> pay</a></td>
 
     </tr>
       {% endfor %}
