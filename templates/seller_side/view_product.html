@@ -8,13 +8,14 @@
 </head>
 
 <body>
-<form action="" method="get"><table  border="03">
+<form action="" method="get" enctype="multipart/form-data"><table  border="03">
   <tr>
     <td>#</td>
 
 
     <td>Product Name</td>
     <td>Quantity</td>
+    <td>image</td>
     <td>Details</td>
     <td>Price</td>
   </tr>
@@ -24,6 +25,7 @@
 
       <td>&nbsp;&nbsp;{{ i['name'] }}</td>
       <td>&nbsp;&nbsp;{{ i['Quantity'] }}</td>
+      <td><img src=" {{ i.item_image }}" height="100" width="100" alt="nbjh"> </td>
       <td>&nbsp;&nbsp;{{ i['details'] }}</td>
       <td>&nbsp;&nbsp;1 kg :{{ i['seller_price'] }}</td>
     <td><a href="/update_product/{{ i['Product_id'] }}">Update</a> <br>

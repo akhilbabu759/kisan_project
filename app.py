@@ -6,7 +6,7 @@ import datetime
 app = Flask(__name__)
 app.secret_key = "abc"
 
-syspath=r"D:\flaskProject5\static\kisan\\"
+syspath=r"D:\flaskProject5\static\\"
 
 
 
@@ -30,7 +30,7 @@ def login():
 
             elif res['user_type'] == 'user':
                 session["lid"] = res['login_id']
-                return redirect('/user_home')
+                return redirect('/notification_view')
 
             else:
                 return '''<script>alert('invalid type');window.location="/"</script>'''
@@ -107,8 +107,13 @@ def delete_employee(e_id):
 def admin_add_item():
     if request.method=="POST":
         name=request.form['textarea']
+        img = request.files['fileField']
+        d=datetime.datetime.now().strftime('%y%m%d-%H%M%S')
+        img.save(r"D:\flaskProject5\static\item\\"+d+'.jpg')
+        img1='/static/item/'+d+'.jpg'
+
         db=Db()
-        db.insert("insert into item(name) values('"+name+"')")
+        db.insert("insert into item(name,item_image) values('"+name+"','"+str(img1)+"')")
         return "<script>alert('Item added');window.location='/admin_add_item';</script>"
     db=Db()
     res=db.select("select * from item")
@@ -248,8 +253,8 @@ def send_payment_emp(b,r):
 def booking_master_report(b_id):
     if request.method=="POST":
         rprt=request.files['fileField']
-        d=datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        rprt.save(syspath+d+'.pdf')
+        d=datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        rprt.save(r"D:\flaskProject5\static\kisan\\"+d+'.pdf')
         path='/static/kisan/'+d+'.pdf'
         db = Db()
         db.update("update soil_report set status = '"+path+"' where soilreport_id='" +str( b_id) + "' ")
@@ -456,8 +461,9 @@ def seller_pay(sid):
             amt=int(q)*int(p)
             print(amt, sid)
             balan=float(bb)-float(amt)
+
             obj.update("update product set status='paid' where seller_id='"+str(sid)+"' ")
-            obj.update("update bank set amount='"+str(amt)+"' where person_id='"+str(sid)+"' and type='seller'")
+            obj.update("update bank set amount=(amount+'"+str(amt)+"') where person_id='"+str(sid)+"' and type='seller'")
             obj.update("update bank set amount='"+str(balan)+"' where type='admin' ")
             return ''' <script> alert("paid ");window.location = "/view_accepted_seller"  </script>'''
         else:
@@ -894,7 +900,7 @@ def add_product():
 @app.route('/view_product')
 def view_product():
     db=Db()
-    ss=db.select("select product.*, item.name from product, item  where product.item_id=item.item_id and seller_id='"+str(session['lid'])+"'")
+    ss=db.select("select *  from item,product where product.item_id=item.item_id and seller_id='"+str(session['lid'])+"'")
     return render_template('seller_side/view_product.html',data=ss)
 
 @app.route('/update_product/<b>',methods=['get','post'])
@@ -939,22 +945,19 @@ def add_bank_details():
     else:
         return render_template('seller_side/add_bank.html')
 
-@app.route('/view_payment_seller',methods=['get','post'])
+@app.route('/view_payment_seller')
 def view_payment_seller():
-    if request.method=="POST":
-        mnth=request.form['select']
-        print(mnth)
-        db=Db()
-        ss=db.select("select * from product where status='accepted' and seller_id='"+str(session['lid'])+"' and month(`date`)='"+mnth+"'")
-        s=db.select("select sum(Quantity * seller_price) as total,product.* from product where status='accepted' and seller_id='"+str(session['lid'])+"' and month(`date`)='"+mnth+"'")
-        print(ss)
-        # ss=db.select("select * from product where status='accepted' and seller_id='"+str(session['lid'])+"' and month(`date`)='"+mnth+"'")
-        # s=db.select("select sum(Quantity * seller_price) as total,product.* from product where status='accepted' and seller_id='"+str(session['lid'])+"' and month(`date`)='"+mnth+"'")
+    db = Db()
 
 
-        return render_template('seller_side/payment_view.html',data=ss,a=s)
-    else:
-        return render_template('seller_side/payment_view.html')
+    ss=db.select("select * from product,item where item.item_id=product.item_id and  seller_id='"+str(session['lid'])+"' ")
+    s1 = db.selectOne(
+        "select sum(Quantity * seller_price) as total from product where product.status='collected' and seller_id='" + str(
+            session['lid']) + "' ")
+
+    s = db.selectOne(
+    "select sum(Quantity * seller_price) as total from product where product.status='paid' and seller_id='" + str(session['lid']) + "' ")
+    return render_template('seller_side/payment_view.html',data=ss,a=s,b=s1)
 
 
 
@@ -981,7 +984,7 @@ def add_user():
             name = request.form['textfield2']
             photo = request.files['fileField']
             date = datetime.datetime.now().strftime("%y%m%d-%H%M%S")
-            photo.save(r"D:\flaskProject5\static\images//" + date + '.jpg')
+            photo.save(r"D:\flaskProject5\static\images\\" + date + '.jpg')
             path = "/static/images/" + date + '.jpg'
             gender = request.form['radio']
             street = request.form['textfield3']
@@ -2271,6 +2274,12 @@ def view_reply_user():
 #     # else:
 #     #     return render_template("user/feedback.html")
 
+@app.route('/notification_view')
+def notification_view():
+        obj = Db()
+        qry = "select * from notification"
 
+        res = obj.select(qry)
+        return render_template("user_side/indexxxx.html",res=res)
 if __name__ == '__main__':
     app.run(port=3000)

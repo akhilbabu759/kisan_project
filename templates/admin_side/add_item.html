@@ -8,13 +8,17 @@
 </head>
 
 <body>
-<form action="" method="post">
+<form action="" method="post" enctype="multipart/form-data">
 <table width="200" border="03">
   <tr>
     <th scope="row">ITEM NAME</th>
     <td>
       <input type="text" name="textarea" id="textarea" cols="45" rows="5"></input>
     </td>
+  </tr>
+     <tr>
+    <th>IMAGE</th>
+    <td><input type="file" name="fileField" id="fileField"  /></td>
   </tr>
   <tr>
     <td colspan="2" align="center">
@@ -27,11 +31,13 @@
         <tr>
             <td>SL. No.</td>
             <td>Name</td>
+            <td>Image</td>
         </tr>
         {% for i in data %}
         <tr>
           <td>{{ loop.index }}</td>
           <td>{{ i['name'] }}</td>
+          <td><img src=" {{ i['item_image'] }}" height="100" width="100"> </td>
           <td><a href="/delete_item/{{ i['item_id'] }}">Delete</a> </td>
         </tr>
         {% endfor %}
